@@ -1,0 +1,8 @@
+# Copy to docker-compose.override.yml for local development customizations
+services:
+  api:
+    environment:
+      APP_DEBUG: "true"
+      LOG_FORMAT: console
+    volumes:
+      - ./src:/app/src:ro

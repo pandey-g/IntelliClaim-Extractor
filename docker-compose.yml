@@ -1,0 +1,130 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: development
+      SECRET_KEY: dev-secret-key-change-in-production-32chars
+      DATABASE_URL: postgresql+asyncpg://intelliclaim:intelliclaim@postgres:5432/intelliclaim
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      DOCUMENT_STORAGE_PATH: /var/lib/intelliclaim/documents
+      OTEL_ENABLED: "false"
+      PROMETHEUS_ENABLED: "true"
+      LOG_FORMAT: json
+    volumes:
+      - document_storage:/var/lib/intelliclaim/documents
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - intelliclaim-net
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: intelliclaim
+      POSTGRES_PASSWORD: intelliclaim
+      POSTGRES_DB: intelliclaim
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intelliclaim -d intelliclaim"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - intelliclaim-net
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - intelliclaim-net
+    restart: unless-stopped
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A intelliclaim.workers.celery_app worker --loglevel=info
+    environment:
+      APP_ENV: development
+      SECRET_KEY: dev-secret-key-change-in-production-32chars
+      DATABASE_URL: postgresql+asyncpg://intelliclaim:intelliclaim@postgres:5432/intelliclaim
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      DOCUMENT_STORAGE_PATH: /var/lib/intelliclaim/documents
+      OTEL_ENABLED: "false"
+    volumes:
+      - document_storage:/var/lib/intelliclaim/documents
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - intelliclaim-net
+    profiles:
+      - workers
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - intelliclaim-net
+    profiles:
+      - monitoring
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - intelliclaim-net
+    profiles:
+      - monitoring
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  document_storage:
+  grafana_data:
+
+networks:
+  intelliclaim-net:
+    driver: bridge

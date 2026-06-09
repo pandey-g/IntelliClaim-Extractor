@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: IntelliClaim
+    orgId: 1
+    folder: IntelliClaim
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

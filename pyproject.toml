@@ -1,0 +1,121 @@
+[tool.poetry]
+name = "intelliclaim-extractor"
+version = "0.1.0"
+description = "AI-powered document intelligence platform for insurance claim processing"
+authors = ["IntelliClaim Team <engineering@intelliclaim.io>"]
+readme = "README.md"
+packages = [{ include = "intelliclaim", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.0"
+uvicorn = { extras = ["standard"], version = "^0.32.0" }
+pydantic = "^2.9.0"
+pydantic-settings = "^2.6.0"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.36" }
+asyncpg = "^0.30.0"
+alembic = "^1.14.0"
+celery = { extras = ["redis"], version = "^5.4.0" }
+redis = "^5.2.0"
+python-multipart = "^0.0.17"
+python-jose = { extras = ["cryptography"], version = "^3.3.0" }
+passlib = { extras = ["bcrypt"], version = "^1.7.4" }
+structlog = "^24.4.0"
+opentelemetry-api = "^1.28.0"
+opentelemetry-sdk = "^1.28.0"
+opentelemetry-instrumentation-fastapi = "^0.49b0"
+opentelemetry-instrumentation-sqlalchemy = "^0.49b0"
+opentelemetry-exporter-otlp-proto-grpc = "^1.28.0"
+prometheus-client = "^0.21.0"
+prometheus-fastapi-instrumentator = "^7.0.0"
+opencv-python-headless = "^4.10.0"
+pytesseract = "^0.3.13"
+pillow = "^11.0.0"
+pypdf = "^5.1.0"
+transformers = "^4.46.0"
+torch = "^2.5.0"
+slowapi = "^0.1.9"
+httpx = "^0.28.0"
+aiofiles = "^24.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+pytest-asyncio = "^0.24.0"
+pytest-cov = "^6.0.0"
+pytest-mock = "^3.14.0"
+ruff = "^0.8.0"
+mypy = "^1.13.0"
+pre-commit = "^4.0.0"
+types-passlib = "^1.7.7"
+types-python-jose = "^3.3.4"
+fakeredis = "^2.26.0"
+testcontainers = { extras = ["postgres"], version = "^4.8.0" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+intelliclaim = "intelliclaim.main:run"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "B", "C4", "UP", "ARG", "SIM", "TCH", "PTH", "RUF",
+]
+ignore = ["B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["intelliclaim"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "celery.*",
+    "cv2.*",
+    "pytesseract.*",
+    "transformers.*",
+    "torch.*",
+    "testcontainers.*",
+    "prometheus_fastapi_instrumentator.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --cov=src/intelliclaim --cov-report=term-missing --cov-fail-under=80"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow-running tests",
+]
+
+[tool.coverage.run]
+source = ["src/intelliclaim"]
+branch = true
+omit = [
+    "*/workers/*",
+    "*/infrastructure/ml/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

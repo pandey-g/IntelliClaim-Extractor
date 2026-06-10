@@ -15,6 +15,7 @@ from intelliclaim.api.middleware.request_id import RequestIdMiddleware
 from intelliclaim.api.routers import health
 from intelliclaim.application.container import Container
 from intelliclaim.infrastructure.config.settings import Settings, get_settings
+from intelliclaim.infrastructure.bootstrap import create_repositories
 from intelliclaim.infrastructure.database.session import DatabaseSessionManager
 from intelliclaim.infrastructure.logging.setup import configure_logging, get_logger
 from intelliclaim.infrastructure.observability.telemetry import setup_telemetry
@@ -30,6 +31,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     db_manager = DatabaseSessionManager(settings)
     container = Container(settings=settings)
+    repositories = create_repositories(db_manager)
+    container.wire_repositories(
+        document_repository=repositories.document_repository,
+        document_page_repository=repositories.document_page_repository,
+        ocr_result_repository=repositories.ocr_result_repository,
+        extracted_field_repository=repositories.extracted_field_repository,
+        processing_job_repository=repositories.processing_job_repository,
+        audit_log_repository=repositories.audit_log_repository,
+    )
     set_container(container)
 
     app.state.db_manager = db_manager

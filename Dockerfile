@@ -33,10 +33,13 @@ FROM base AS runtime
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-COPY pyproject.toml ./
+COPY pyproject.toml alembic.ini ./
 COPY src/ ./src/
+COPY alembic/ ./alembic/
+COPY scripts/docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN poetry install --only-root
+RUN chmod +x /docker-entrypoint.sh
 
 RUN mkdir -p /var/lib/intelliclaim/documents
 
@@ -50,4 +53,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["uvicorn", "intelliclaim.main:app", "--host", "0.0.0.0", "--port", "8000"]

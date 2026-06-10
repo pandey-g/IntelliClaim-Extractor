@@ -38,6 +38,11 @@ class DatabaseSessionManager:
         """Return the async SQLAlchemy engine."""
         return self._engine
 
+    @property
+    def session_factory(self) -> async_sessionmaker[AsyncSession]:
+        """Return the async session factory for repository adapters."""
+        return self._session_factory
+
     @asynccontextmanager
     async def session(self) -> AsyncGenerator[AsyncSession, None]:
         """Provide a transactional async database session."""

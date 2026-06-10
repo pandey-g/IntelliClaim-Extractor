@@ -14,10 +14,10 @@ class TestContainer:
             settings=Settings(secret_key="test-secret-key-for-pytest-runs-32chars"),
         )
 
-    def test_require_initialized_raises_when_not_wired(self, container: Container) -> None:
-        with pytest.raises(RuntimeError, match="not been initialized"):
-            container.require_initialized()
+    def test_require_repositories_raises_when_not_wired(self, container: Container) -> None:
+        with pytest.raises(RuntimeError, match="Repositories not initialized"):
+            container.require_repositories_initialized()
 
     def test_documents_raises_when_not_wired(self, container: Container) -> None:
-        with pytest.raises(RuntimeError, match="not been initialized"):
+        with pytest.raises(RuntimeError, match="Repositories not initialized"):
             _ = container.documents

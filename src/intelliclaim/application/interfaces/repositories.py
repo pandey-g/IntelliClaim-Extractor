@@ -3,7 +3,9 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
+from intelliclaim.domain.entities.audit_log import AuditLog
 from intelliclaim.domain.entities.document import Document
+from intelliclaim.domain.entities.document_page import DocumentPage
 from intelliclaim.domain.entities.extracted_field import ExtractedField
 from intelliclaim.domain.entities.ocr_result import OCRResult
 from intelliclaim.domain.entities.processing_job import ProcessingJob
@@ -48,6 +50,34 @@ class IExtractedFieldRepository(ABC):
     @abstractmethod
     async def get_by_document_id(self, document_id: DocumentId) -> list[ExtractedField]:
         """Retrieve all extracted fields for a document."""
+
+
+class IDocumentPageRepository(ABC):
+    """Persistence port for document pages."""
+
+    @abstractmethod
+    async def save(self, page: DocumentPage) -> DocumentPage:
+        """Persist a document page."""
+
+    @abstractmethod
+    async def save_many(self, pages: list[DocumentPage]) -> list[DocumentPage]:
+        """Persist multiple document pages."""
+
+    @abstractmethod
+    async def get_by_document_id(self, document_id: DocumentId) -> list[DocumentPage]:
+        """Retrieve all pages for a document ordered by page number."""
+
+
+class IAuditLogRepository(ABC):
+    """Persistence port for audit logs."""
+
+    @abstractmethod
+    async def save(self, audit_log: AuditLog) -> AuditLog:
+        """Persist an audit log entry."""
+
+    @abstractmethod
+    async def get_by_document_id(self, document_id: DocumentId) -> list[AuditLog]:
+        """Retrieve audit logs for a document."""
 
 
 class IProcessingJobRepository(ABC):

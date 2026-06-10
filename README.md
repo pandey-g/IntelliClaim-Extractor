@@ -51,6 +51,16 @@ poetry run uvicorn intelliclaim.main:app --reload
 
 API docs: http://localhost:8000/docs
 
+## Database Migrations
+
+```bash
+# Local (Poetry)
+./scripts/migrate.sh
+
+# Docker Compose runs migrations automatically on API startup
+docker compose up -d
+```
+
 ## Docker
 
 ```bash
@@ -124,7 +134,7 @@ scripts/              # Development scripts
 | Phase | Scope                              | Status      |
 |-------|------------------------------------|-------------|
 | 1     | Project skeleton & architecture    | Complete    |
-| 2     | Database & migrations              | Pending     |
+| 2     | Database & migrations              | Complete    |
 | 3     | Document upload service            | Pending     |
 | 4     | OCR pipeline                       | Pending     |
 | 5     | LayoutLMv3 extraction              | Pending     |

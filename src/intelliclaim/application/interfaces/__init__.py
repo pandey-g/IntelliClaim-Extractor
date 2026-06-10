@@ -1,6 +1,8 @@
 """Port interfaces for infrastructure adapters."""
 
 from intelliclaim.application.interfaces.repositories import (
+    IAuditLogRepository,
+    IDocumentPageRepository,
     IDocumentRepository,
     IExtractedFieldRepository,
     IOCRResultRepository,
@@ -15,6 +17,8 @@ from intelliclaim.application.interfaces.services import (
 )
 
 __all__ = [
+    "IAuditLogRepository",
+    "IDocumentPageRepository",
     "IDocumentRepository",
     "IDocumentStorage",
     "IExtractedFieldRepository",

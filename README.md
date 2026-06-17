@@ -25,6 +25,7 @@ Clean Architecture with four layers:
 - **API** — FastAPI routers, middleware, request/response schemas
 
 See [docs/architecture.md](docs/architecture.md) for diagrams and design decisions.
+See [docs/database.md](docs/database.md) for the PostgreSQL schema and migrations.
 
 ## Prerequisites
 
@@ -86,7 +87,9 @@ docker compose --profile workers up -d
 |--------|-------------------------------|--------------------------|
 | POST   | `/documents`                  | Upload document          |
 | GET    | `/documents/{id}`             | Get document metadata    |
-| GET    | `/documents/{id}/status`      | Processing status        |
+| GET    | `/documents/{id}/status`    | Processing status        |
+| POST   | `/documents/{id}/process`     | Run OCR pipeline (sync)  |
+| GET    | `/documents/{id}/ocr`         | OCR results              |
 | GET    | `/documents/{id}/extractions` | Extracted fields         |
 | GET    | `/health`                     | Health check             |
 | GET    | `/metrics`                    | Prometheus metrics       |
@@ -135,9 +138,9 @@ scripts/              # Development scripts
 |-------|------------------------------------|-------------|
 | 1     | Project skeleton & architecture    | Complete    |
 | 2     | Database & migrations              | Complete    |
-| 3     | Document upload service            | Pending     |
-| 4     | OCR pipeline                       | Pending     |
-| 5     | LayoutLMv3 extraction              | Pending     |
+| 3     | Document upload service            | Complete    |
+| 4     | OCR pipeline                       | Complete    |
+| 5     | LayoutLMv3 extraction              | Complete    |
 | 6     | Celery background processing       | Pending     |
 | 7     | Observability                      | Pending     |
 | 8     | Testing                            | Pending     |

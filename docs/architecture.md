@@ -132,6 +132,28 @@ src/intelliclaim/
 └── workers/                # Celery background tasks
 ```
 
+## Database Layer (Phase 2)
+
+- **ORM models** in `infrastructure/database/models/` map to PostgreSQL tables
+- **Mappers** translate between domain entities and ORM models (no ORM in domain/application)
+- **Repositories** implement port interfaces from `application/interfaces/repositories.py`
+- **Alembic** manages schema migrations; applied automatically on Docker startup
+
+See [database.md](database.md) for the full schema, indexes, and migration commands.
+
+## OCR Pipeline (Phase 4)
+
+The synchronous OCR pipeline runs via `POST /documents/{id}/process`:
+
+```
+Document retrieval
+  → Page rendering (PyMuPDF for PDF, Pillow for images)
+  → OpenCV preprocessing (deskew, denoise, CLAHE, binarization)
+  → Tesseract OCR (word-level bounding boxes + confidence)
+  → Persist pages + OCR results
+  → Status → layout_analysis
+```
+
 ## Key Design Decisions
 
 1. **Async-first**: FastAPI + async SQLAlchemy for I/O-bound document operations.

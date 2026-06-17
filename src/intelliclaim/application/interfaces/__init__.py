@@ -11,8 +11,10 @@ from intelliclaim.application.interfaces.repositories import (
 from intelliclaim.application.interfaces.services import (
     IDocumentStorage,
     IFieldExtractor,
+    IImagePreprocessor,
     ILayoutAnalyzer,
     IOCRService,
+    IPageRenderer,
     ITaskQueue,
 )
 
@@ -23,9 +25,11 @@ __all__ = [
     "IDocumentStorage",
     "IExtractedFieldRepository",
     "IFieldExtractor",
+    "IImagePreprocessor",
     "ILayoutAnalyzer",
     "IOCRResultRepository",
     "IOCRService",
+    "IPageRenderer",
     "IProcessingJobRepository",
     "ITaskQueue",
 ]

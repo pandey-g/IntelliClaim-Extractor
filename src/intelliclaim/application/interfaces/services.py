@@ -2,8 +2,8 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from uuid import UUID
 
+from intelliclaim.domain.entities.document import Document
 from intelliclaim.domain.entities.extracted_field import ExtractedField
 from intelliclaim.domain.entities.ocr_result import OCRResult
 from intelliclaim.domain.value_objects.document_id import DocumentId
@@ -22,6 +22,19 @@ class IDocumentStorage(ABC):
         """Store document bytes and return storage path."""
 
     @abstractmethod
+    async def store_page_image(
+        self,
+        document_id: DocumentId,
+        page_number: int,
+        image_bytes: bytes,
+    ) -> str:
+        """Store a rendered page image and return storage path."""
+
+    @abstractmethod
+    def get_working_directory(self, document_id: DocumentId) -> Path:
+        """Return scratch directory for intermediate processing artifacts."""
+
+    @abstractmethod
     async def retrieve(self, storage_path: str) -> bytes:
         """Retrieve document bytes from storage."""
 
@@ -30,11 +43,38 @@ class IDocumentStorage(ABC):
         """Delete document from storage."""
 
 
+class IPageRenderer(ABC):
+    """Port for rendering documents into per-page raster images."""
+
+    @abstractmethod
+    async def render_pages(
+        self,
+        document: Document,
+        file_content: bytes,
+        *,
+        output_dir: Path,
+    ) -> list[Path]:
+        """Render document pages to image files and return paths."""
+
+
+class IImagePreprocessor(ABC):
+    """Port for OpenCV image preprocessing before OCR."""
+
+    @abstractmethod
+    def preprocess(self, image_path: Path, *, output_path: Path) -> Path:
+        """Apply preprocessing pipeline and write result to output_path."""
+
+
 class IOCRService(ABC):
     """Port for OCR execution."""
 
     @abstractmethod
-    async def extract_text(self, image_path: Path, page_number: int) -> OCRResult:
+    async def extract_text(
+        self,
+        document_id: DocumentId,
+        image_path: Path,
+        page_number: int,
+    ) -> OCRResult:
         """Run OCR on a preprocessed page image."""
 
 

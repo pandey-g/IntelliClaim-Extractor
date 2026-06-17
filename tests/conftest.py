@@ -38,10 +38,11 @@ def app(test_settings: Settings):
 
 @pytest.fixture
 async def client(app) -> AsyncGenerator[AsyncClient, None]:
-    """Provide async HTTP test client."""
-    transport = ASGITransport(app=app, raise_app_exceptions=False)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        yield ac
+    """Provide async HTTP test client with application lifespan started."""
+    async with app.router.lifespan_context(app):
+        transport = ASGITransport(app=app, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            yield ac
 
 
 @pytest.fixture(autouse=True)
@@ -56,7 +57,8 @@ def postgres_database_url() -> str:
     """Async SQLAlchemy URL for repository integration tests."""
     env_url = os.environ.get("DATABASE_URL")
     if env_url:
-        return env_url
+        yield env_url
+        return
 
     try:
         from testcontainers.postgres import PostgresContainer

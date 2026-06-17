@@ -9,6 +9,7 @@ services:
     environment:
       APP_ENV: development
       SECRET_KEY: dev-secret-key-change-in-production-32chars
+      API_KEYS: dev-api-key-1,dev-api-key-2
       DATABASE_URL: postgresql+asyncpg://intelliclaim:intelliclaim@postgres:5432/intelliclaim
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1

@@ -31,6 +31,7 @@ prometheus-fastapi-instrumentator = "^7.0.0"
 opencv-python-headless = "^4.10.0"
 pytesseract = "^0.3.13"
 pillow = "^11.0.0"
+pymupdf = "^1.25.0"
 pypdf = "^5.1.0"
 transformers = "^4.46.0"
 torch = "^2.5.0"
@@ -86,6 +87,7 @@ plugins = ["pydantic.mypy"]
 module = [
     "celery.*",
     "cv2.*",
+    "fitz.*",
     "pytesseract.*",
     "transformers.*",
     "torch.*",
